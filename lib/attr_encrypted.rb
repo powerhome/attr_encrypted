@@ -372,7 +372,7 @@ module AttrEncrypted
         attribute_option_value = attributes[:attribute]
 
         [:if, :unless, :value_present, :allow_empty_value].each do |option|
-          evaluated_options[option] = evaluate_attr_encrypted_option(attributes[option])
+          evaluated_options[option] = evaluate_attr_encrypted_option(attributes[option], attribute, attributes)
         end
 
         evaluated_options[:attribute] = attribute_option_value
@@ -380,7 +380,7 @@ module AttrEncrypted
         evaluated_options.tap do |options|
           if options[:if] && !options[:unless] && options[:value_present] || options[:allow_empty_value]
             (attributes.keys - evaluated_options.keys).each do |option|
-              options[option] = evaluate_attr_encrypted_option(attributes[option])
+              options[option] = evaluate_attr_encrypted_option(attributes[option], attribute, attributes)
             end
 
             unless options[:mode] == :single_iv_and_salt
@@ -397,11 +397,11 @@ module AttrEncrypted
       # Evaluates symbol (method reference) or proc (responds to call) options
       #
       # If the option is not a symbol or proc then the original option is returned
-      def evaluate_attr_encrypted_option(option)
+      def evaluate_attr_encrypted_option(option, attribute_name = nil, attribute_encryption_config = {})
         if option.is_a?(Symbol) && respond_to?(option, true)
           send(option)
         elsif option.respond_to?(:call)
-          option.call(self)
+          option.call(self, attribute_name, attribute_encryption_config)
         else
           option
         end

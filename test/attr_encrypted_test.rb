@@ -55,7 +55,7 @@ end
 
 class SomeOtherClass
   extend AttrEncrypted
-  def self.call(object)
+  def self.call(object, *_rest)
     object.class
   end
 end
@@ -245,7 +245,7 @@ class AttrEncryptedTest < Minitest::Test
   end
 
   def test_should_evaluate_a_lambda_option
-    assert_equal SomeOtherClass, SomeOtherClass.new.send(:evaluate_attr_encrypted_option, lambda { |object| object.class })
+    assert_equal SomeOtherClass, SomeOtherClass.new.send(:evaluate_attr_encrypted_option, lambda { |object, *_rest| object.class })
   end
 
   def test_should_evaluate_a_method_option
